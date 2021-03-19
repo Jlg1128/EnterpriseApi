@@ -1,0 +1,37 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es2018",
+    "noImplicitAny": false,
+    "moduleResolution": "node",
+    // 是否生成sourceMap
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    // 有点bug， 懒得用了
+    // "paths": {
+    //   "@/service/*": [
+    //     "service/*",
+    //   ],
+    //   "@/controller/*": [
+    //     "controller",
+    //   ],
+    //   "@/dao/*": [
+    //     "dao",
+    //   ],
+    // }
+  },
+  "plugins": ["@babel/plugin-transform-typescript"],
+  "typeRoots": [
+    "node",
+    "node_modules/@types",
+    "node_modules/dborm-mysql/index.d.ts",
+  ],
+  "include": [
+    "."
+  ],
+  "exclude": [
+    "node_modules/",
+    "dist/",
+  ]
+}
