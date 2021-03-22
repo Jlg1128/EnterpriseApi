@@ -12,7 +12,7 @@ export type TableORMType = {
   getGroupByField(query: any, connection?: mysql.Connection): Promise<Map<string, any>>,
   getListByIds(ids: Array<number>, connection?: mysql.Connection): Promise<Array<any>>,
   getCount(query: any, connection?: mysql.Connection): Promise<number>,
-  pageQuery(query: any, connection?: mysql.Connection): Promise<{ list: Array<any>, count: number }>,
+  pageQuery<T>(query: any, connection?: mysql.Connection): Promise<{ list: Array<T>, count: number }>,
   add(data: any, connection?: mysql.Connection): Promise<number>,
   delete(data: any, connection?: mysql.Connection): Promise<any>,
   updateByIds(data: any, ids?: Array<number>, connection?: mysql.Connection): Promise<any>,

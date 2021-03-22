@@ -1,7 +1,11 @@
 import { Next, Context } from 'koa';
+import RolesDao from '../dao/rolesDao';
+import userDao from '../dao/userDao';
 import userService from '../service/userService';
 import { MyResponse } from '../util/responseUtil';
 import { User } from '../domain/user';
+
+let userSortField = ['uid', 'create_time', 'update_time', 'sex'];
 
 // 用户相关
 const userController = {
@@ -40,6 +44,7 @@ const userController = {
       avatar = null,
       phone_number = null,
       email = null,
+      roleIds = [],
     } = ctx.request.body;
     try {
       if (!username || !password) {
@@ -65,12 +70,24 @@ const userController = {
       }
       password = ctx.util.md5(password);
       let now = Date.now().toString();
+      let role_name_list = await RolesDao.getAllRoles();
+      let newRoles = [];
+      if (roleIds && Array.isArray(roleIds)) {
+        role_name_list.forEach((role_name_item) => {
+          roleIds.forEach((item: number) => {
+            if (item === role_name_item.role_id) {
+              newRoles.push(role_name_item);
+            }
+          });
+        });
+      }
       let user: Partial<User> = {
         username,
         create_time: now,
         update_time: now,
         password,
         avatar,
+        roleIds: newRoles,
         phone_number: phone_number ? phone_number.toString() : null,
         email,
         sex: 'male',
@@ -100,7 +117,7 @@ const userController = {
       return;
     }
     let user = null;
-    if (type !== 'username' && type !== 'email' && type !== 'phone' && type !== 'uid') {
+    if (type !== 'username' && type !== 'email' && type !== 'phone_number' && type !== 'uid') {
       ctx.body = MyResponse.error('没有对应的校验类型');
       return;
     }
@@ -111,7 +128,7 @@ const userController = {
       if (type === 'email') {
         user = await userService.getUserByEmail(value.toString());
       }
-      if (type === 'phone') {
+      if (type === 'phone_number') {
         user = await userService.getUserByPhoneNumber(value.toString());
       }
       if (type === 'uid') {
@@ -161,13 +178,24 @@ const userController = {
       return;
     }
     try {
+      let role_name_list = await RolesDao.getAllRoles();
+      let newRoles = [];
+      if (roleIds && Array.isArray(roleIds)) {
+        role_name_list.forEach((role_name_item) => {
+          roleIds.forEach((item: number) => {
+            if (item === role_name_item.role_id) {
+              newRoles.push(role_name_item);
+            }
+          });
+        });
+      }
       let res = await userService.modifyUser(uid, {
         username: username || user.username,
         email: email || user.email,
         phone_number: phone_number || user.phone_number,
         avatar: avatar || user.avatar,
-        password: password ? ctx.util.md5(password) : password,
-        roleIds: roleIds && Array.isArray(roleIds) ? JSON.stringify(roleIds) : user.roleIds,
+        password: password ? ctx.util.md5(password) : user.password,
+        roleIds: newRoles,
         update_time: Date.now().toString(),
         department_id,
       });
@@ -225,15 +253,66 @@ const userController = {
     }
   },
   getUserById: async (ctx: Context, next: Next) => {
-    let { uid } = ctx.session;
+    // let { uid } = ctx.session;
+    let { uid } = ctx.request.query;
+    if (!uid) {
+      ctx.body = MyResponse.error("用户id不能为空");
+      return;
+    }
     try {
       let user: User = null;
-      user = await userService.getUserById(uid);
+      user = await userService.getUserById(Number(uid));
       if (user == null) {
-        ctx.body = MyResponse.success("用户不存在");
+        ctx.body = MyResponse.error("用户不存在");
       } else {
         delete user.password;
         ctx.body = MyResponse.success(user);
+      }
+    } catch (error) {
+      ctx.log.error(error);
+      ctx.body = MyResponse.error("");
+    }
+  },
+  getUserLogined: async (ctx: Context) => {
+    let { uid } = ctx.session;
+    // let { uid } = ctx.request.query;
+    if (!uid) {
+      ctx.body = MyResponse.noAuth("用户登录已过期");
+      return;
+    }
+    try {
+      let user: User = null;
+      user = await userService.getUserById(Number(uid));
+      if (user == null) {
+        ctx.body = MyResponse.error("用户不存在");
+      } else {
+        delete user.password;
+        ctx.body = MyResponse.success(user);
+      }
+    } catch (error) {
+      ctx.log.error(error);
+      ctx.body = MyResponse.error("");
+    }
+  },
+  getUserList: async (ctx: Context, next: Next) => {
+    let { pageSize, pageIndex, sortField } = ctx.request.query;
+    if (Number(pageSize) < 0 || Number(pageIndex) < 0) {
+      ctx.body = MyResponse.paramWrong("参数格式不正确");
+      return;
+    }
+    let startPos = Number(pageSize) * (Number(pageIndex) - 1);
+    sortField = sortField ? sortField.toString() : '';
+    if (sortField && !userSortField.includes(sortField)) {
+      ctx.body = MyResponse.paramWrong("sortField不在排序fields里");
+      return;
+    }
+    try {
+      let result: { list: Array<User>, count: number } = null;
+      result = await userDao.getUserList(Number(pageSize) || 10, Number(startPos) || 0, sortField);
+      if (result.list == null) {
+        ctx.body = MyResponse.success("用户列表不存在");
+      } else {
+        ctx.body = MyResponse.success(result);
       }
     } catch (error) {
       ctx.log.error(error);

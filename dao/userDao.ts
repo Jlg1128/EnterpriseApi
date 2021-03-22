@@ -14,13 +14,14 @@ export default {
     return user;
   },
   getUserByNickname: async (username: string): Promise<User> => {
-      let user: User = await Userdb.findOne(
-        {
-          username,
-        },
-      );
-      return user;
+    let user: User = await Userdb.findOne(
+      {
+        username,
+      },
+    );
+    return user;
   },
+
   getUserByEmail: async (email: string): Promise<User> => {
     let user: User = await Userdb.findOne(
       {
@@ -29,6 +30,7 @@ export default {
     );
     return user;
   },
+
   getUserByPhoneNumber: async (phoneNumber: string): Promise<User> => {
     let user: User = await Userdb.findOne(
       {
@@ -37,15 +39,26 @@ export default {
     );
     return user;
   },
-  getAllUsers: async (): Promise<Array<User>> => {
-    let userList: Promise<User[]> = Userdb.getList<User>({});
-    return userList;
+
+  getUserList: async (pageSize: number, startPos: number, sortField?: string): Promise<{ list: Array<User>, count: number } > => {
+    try {
+      let userList: { list: Array<User>, count: number } = await Userdb.pageQuery<User>({
+        initSql: 'select * from user',
+        offset: startPos,
+        limit: pageSize,
+        sort: sortField ? [sortField.concat(":1")] : "",
+      });
+      return userList;
+    } catch (error) {
+     console.log(error);
+    }
   },
 
   insertUser: async (user: Partial<User>): Promise<number> => {
     let ifSuccess: number = await Userdb.add(user);
     return ifSuccess;
   },
+
   deleteUser: async (uid: number): Promise<number> => {
     let ifSuccess: number = await Userdb.delete({
       uid,
@@ -53,7 +66,7 @@ export default {
     return ifSuccess;
   },
   modifyUser: async (uid: number, partialUser: Partial<User>): Promise<string> => {
-    let ifSuccess: string = await Userdb.updateByQuery({
+    let user: string = await Userdb.updateByQuery({
       username: partialUser.username,
       email: partialUser.email,
       phone_number: partialUser.phone_number,
@@ -67,12 +80,17 @@ export default {
         uid: [uid],
       },
     });
-    return ifSuccess;
+    return user;
   },
   modifyAvatar: async (uid: number, avatar): Promise<string> => {
-    let ifSuccess: string = await Userdb.update({
+    let ifSuccess: string = await Userdb.updateByQuery({
       avatar,
-    }, uid);
+    },
+    {
+      inFields: {
+        uid: [uid],
+      },
+    });
     return ifSuccess;
   },
 };

@@ -62,11 +62,11 @@ app.use(md5Util);
 app.use(bodyParser());
 
 app.use(async (ctx: Koa.Context, next: Koa.Next) => {
-  // if (!allowPath.includes(ctx.path) && !ctx.session.logged && !ctx.session.uid) { // 如果登录属性为undefined或者false，对应未登录和登录失败
-  //   ctx.session.logged = false;
-  //   ctx.body = MyResponse.noAuth("未登录");
-  //   return;
-  // }
+  if (!allowPath.includes(ctx.path) && !ctx.session.logged && !ctx.session.uid) { // 如果登录属性为undefined或者false，对应未登录和登录失败
+    ctx.session.logged = false;
+    ctx.body = MyResponse.noAuth("未登录");
+    return;
+  }
   await next();
 });
 // 注册路由

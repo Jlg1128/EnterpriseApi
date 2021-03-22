@@ -16,12 +16,18 @@ export default {
     );
     return res;
   },
-  getWagesByMonth: async (send_year: number, send_month: number) => {
-    let res = await WageDB.getList<Wage>({
-      send_year,
-      send_month,
-    });
-    return res;
+  getWagesByMonth: async (send_year: number, send_month: number, pageSize, startPos) => {
+    try {
+      let res: { list: Array<Wage>, count: number } = await WageDB.pageQuery<Wage>({
+        initSql: `select * from wage where send_year=${send_year} and send_month=${send_month}`,
+        offset: startPos,
+        limit: pageSize,
+        // sort: ['send_month'],
+      });
+      return res;
+    } catch (error) {
+      console.log(error);
+    }
   },
   deleteWageById: async (wage_id: number) => {
     let res = await WageDB.delete({

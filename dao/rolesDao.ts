@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import { Roles } from "domain/roles";
 import RoleDb from '../db/roledb';
 
@@ -40,19 +41,26 @@ const RolesDao = {
     });
     return res;
   },
-  async getRolesByIds(role_ids: number[] | string[]): Promise<Array<Roles>> {
-    let res = await RoleDb.getList<Roles>({
-      inFields: {
-        role_id: role_ids,
-      },
-    });
+  getRoleList: async (pageSize: number, startPos: number, sortField?: string): Promise<{ list: Array<Roles>, count: number } > => {
+    try {
+      let RoleList: { list: Array<Roles>, count: number } = await RoleDb.pageQuery<Roles>({
+        initSql: 'select * from roles',
+        offset: startPos,
+        limit: pageSize,
+        sort: sortField ? [sortField.concat(":1")] : "",
+      });
+      return RoleList;
+    } catch (error) {
+     console.log(error);
+    }
+  },
+  async getAllRoles(): Promise<Roles[]> {
+    let res = await RoleDb.getList<Roles>({});
     return res;
   },
-   getRolesByRoleName: async (role_name: string): Promise<Array<Roles>> => {
-    let res = await RoleDb.getList<Roles>({
-      inFields: {
+   getRolesByRoleName: async (role_name: string): Promise<Roles> => {
+    let res = await RoleDb.findOne<Roles>({
         role_name,
-      },
     });
     return res;
   },

@@ -1,6 +1,7 @@
 import Router = require('koa-router');
 import userController from '../controllers/userController';
 import roelsController from '../controllers/roelsController';
+import menuController from '../controllers/menuController';
 import departmentController from '../controllers/departmentController';
 import wageController from '../controllers/wageController';
 
@@ -14,6 +15,8 @@ router.post('/api/user/modifyUser', userController.modifyUser);
 router.post('/api/user/modifyAvatar', userController.modifyAvatar);
 router.post('/api/user/resetPassword', userController.resetPassword);
 router.get('/api/user/getUserById', userController.getUserById);
+router.get('/api/user/getUserLogined', userController.getUserLogined);
+router.get('/api/user/getUserList', userController.getUserList);
 router.post('/api/user/deleteUserByUid', userController.deleteUserByUid);
 router.get('/api/user/isUserAlreatExit', userController.isUserAlreatExit);
 router.get('/api/user/isUserExit', userController.isUserExit);
@@ -21,9 +24,18 @@ router.get('/api/user/isUserExit', userController.isUserExit);
 router.post('/api/role/insertRole', roelsController.insertRole);
 router.post('/api/role/modifyRoles', roelsController.modifyRoles);
 router.get('/api/role/getSingleRoleById', roelsController.getSingleRoleById);
-router.get('/api/role/getRolesByIds', roelsController.getRolesByIds);
+router.get('/api/role/getRoleList', roelsController.getRoleList);
+router.get('/api/role/getAllRoles', roelsController.getAllRoles);
 router.post('/api/role/deleteRoleByRoleId', roelsController.deleteRoleByRoleId);
 router.get('/api/role/isRoleNameRepeat', roelsController.isRoleNameRepeat);
+
+router.post('/api/menu/insertMenu', menuController.insertMenu);
+router.post('/api/menu/modifyMenu', menuController.modifyMenu);
+router.get('/api/menu/getMenuById', menuController.getMenuById);
+router.get('/api/menu/getMenuList', menuController.getMenuList);
+router.get('/api/menu/getAllMenus', menuController.getAllMenus);
+router.post('/api/menu/deleteMenuById', menuController.deleteMenuById);
+router.get('/api/menu/isMenuNameRepeat', menuController.isMenuNameRepeat);
 
 router.post('/api/department/addDepartment', departmentController.addDepartment);
 router.post('/api/department/deleteDepartmentById', departmentController.deleteDepartmentById);
