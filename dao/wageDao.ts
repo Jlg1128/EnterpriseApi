@@ -9,9 +9,9 @@ export default {
   getWageByUid: async (uid: number, send_year: number, send_month: number) => {
     let res = await WageDB.findOne<Wage>(
       {
-        uid,
         send_year,
         send_month,
+        target_id: uid,
       },
     );
     return res;

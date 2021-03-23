@@ -15,6 +15,7 @@ router.post('/api/user/modifyUser', userController.modifyUser);
 router.post('/api/user/modifyAvatar', userController.modifyAvatar);
 router.post('/api/user/resetPassword', userController.resetPassword);
 router.get('/api/user/getUserById', userController.getUserById);
+router.get('/api/user/getAllUser', userController.getAllUser);
 router.get('/api/user/getUserLogined', userController.getUserLogined);
 router.get('/api/user/getUserList', userController.getUserList);
 router.post('/api/user/deleteUserByUid', userController.deleteUserByUid);
@@ -43,6 +44,7 @@ router.get('/api/department/getDepartmentById', departmentController.getDepartme
 router.get('/api/department/getAllDepartment', departmentController.getAllDepartment);
 router.post('/api/department/modifyDepartmentName', departmentController.modifyDepartmentName);
 router.post('/api/department/modifyDepartmentLeader', departmentController.modifyDepartmentLeader);
+router.post('/api/department/modifyDepartment', departmentController.modifyDepartment);
 router.get('/api/department/isDepartmentNameRepeat', departmentController.isDepartmentNameRepeat);
 
 router.post('/api/wage/sendWage', wageController.sendWage);

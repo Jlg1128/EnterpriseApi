@@ -1,29 +1,44 @@
+/* eslint-disable no-plusplus */
+/* eslint-disable no-await-in-loop */
 /* eslint-disable max-len */
 import { Next, Context } from 'koa';
 import { MyResponse } from '../util/responseUtil';
 import { Department } from '../domain/department';
 import DepartmentDao from '../dao/departmentDao';
+import userDao from '../dao/userDao';
 
-// department_id: number,
-// department_name: string,
-// create_time: string,
-// update_time: string,
-// leader_id: number,
 const RolesController = {
   addDepartment: async (ctx: Context, next: Next) => {
-    let { department_name, leader_id } = ctx.request.body;
-    let now = Date.now().toString();
-    let department: Department = {
-      create_time: now,
-      update_time: now,
-      department_name,
-      leader_id: leader_id || null,
-    };
-    if (!department_name) {
-      ctx.body = MyResponse.paramWrong("部门名称不能为空");
-      return;
-    }
     try {
+      let { department_name, leader_id, members } = ctx.request.body;
+      let now = Date.now().toString();
+      let leader = await userDao.getUserById(leader_id);
+      if (!leader) {
+        ctx.body = MyResponse.error("主管不存在");
+        return;
+      }
+      let finalMembers = [];
+      if (members && Array.isArray(members)) {
+        for (let i = 0; i < members.length; i++) {
+          let user = await userDao.getUserById(members[i]);
+          console.log(user);
+          finalMembers.push(user);
+        }
+      } else {
+        members = [];
+      }
+      let department: Department = {
+        create_time: now,
+        update_time: now,
+        department_name,
+        leader_id: leader_id || null,
+        leader_name: leader.username,
+        members: finalMembers,
+      };
+      if (!department_name) {
+        ctx.body = MyResponse.paramWrong("部门名称不能为空");
+        return;
+      }
       if (await DepartmentDao.getDepartmentByName(department_name)) {
         ctx.body = MyResponse.error("部门名称已存在");
       } else {
@@ -75,6 +90,55 @@ const RolesController = {
       let res = await DepartmentDao.getAllDepartment();
       ctx.body = MyResponse.success(res);
     } catch (error) {
+      ctx.body = MyResponse.error(error || "异常错误");
+    }
+  },
+  modifyDepartment: async (ctx: Context, next: Next) => {
+    let { department_id, department_name, leader_id, members } = ctx.request.body;
+    try {
+      let oldDepartment = await DepartmentDao.getDepartmentById(department_id);
+      if (!oldDepartment) {
+        ctx.body = MyResponse.error("该部门不存在");
+        return;
+      }
+      if (oldDepartment.department_name !== department_name) {
+        let exitDepartment = await DepartmentDao.getDepartmentByName(department_name);
+        if (exitDepartment) {
+          ctx.body = MyResponse.error("部门名称已存在");
+          return;
+        }
+      }
+
+      leader_id = leader_id || oldDepartment.leader_id.toString();
+      let leader = await userDao.getUserById(leader_id);
+      members = members && Array.isArray(members) ? members : oldDepartment.members || [];
+      if (!leader) {
+        ctx.body = MyResponse.error("leader不存在");
+        return;
+      }
+      let finalMembers = [];
+      if (members && Array.isArray(members)) {
+        for (let i = 0; i < members.length; i++) {
+          let user = await userDao.getUserById(members[i]);
+          console.log(user);
+          finalMembers.push(user);
+        }
+      } else {
+        members = [];
+      }
+      console.log("finalMembers", finalMembers);
+      let newDepartment: Department = {
+        ...oldDepartment,
+        department_name,
+        leader_id,
+        leader_name: leader.username,
+        members: finalMembers,
+        update_time: Date.now().toString(),
+      };
+      let res = await DepartmentDao.modifyDepartment(newDepartment);
+      ctx.body = MyResponse.success(null, '更新成功');
+    } catch (error) {
+      console.log(error);
       ctx.body = MyResponse.error(error || "异常错误");
     }
   },

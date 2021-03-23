@@ -93,8 +93,6 @@ const RolesController = {
     }
     try {
       let roles = await RolesDao.getSingleRoleById(Number(role_id));
-      roles.menus = JSON.parse(roles.menus);
-      console.log("res", roles);
       ctx.body = MyResponse.success(roles);
     } catch (error) {
       ctx.body = MyResponse.error(error || "数据库错误");
@@ -129,7 +127,6 @@ const RolesController = {
   getAllRoles: async (ctx: Context, next: Next) => {
     try {
       let roles = await RolesDao.getAllRoles();
-      roles.forEach((item) => item.menus = JSON.parse(item.menus));
       ctx.body = MyResponse.success(roles);
     } catch (error) {
       ctx.body = MyResponse.error(error || "数据库错误");

@@ -1,4 +1,6 @@
+import { Department } from "./department";
 import { Roles } from "./roles";
+import { Wage } from "./wage";
 
 export type User = {
   uid?: number,
@@ -12,4 +14,6 @@ export type User = {
   email: string,
   sex: 'male' | 'femail',
   department_id: number,
+  department?: Department,
+  wage?: Wage,
 }

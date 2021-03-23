@@ -53,7 +53,14 @@ export default {
      console.log(error);
     }
   },
-
+  getAllUser: async (): Promise<User[]> => {
+    try {
+      let users = Userdb.getList<User>({});
+      return users;
+    } catch (error) {
+     console.log(error);
+    }
+  },
   insertUser: async (user: Partial<User>): Promise<number> => {
     let ifSuccess: number = await Userdb.add(user);
     return ifSuccess;

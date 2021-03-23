@@ -24,6 +24,7 @@ const allowPath = [
   '/api/user/isUserAlreatExit',
   '/api/user/isUserExit',
 ];
+
 // 日志中间件
 const logUtilMiddleWares = Log({
   env: process.env.NODE_ENV, // koa 提供的环境变量

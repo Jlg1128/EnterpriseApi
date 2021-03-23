@@ -34,6 +34,20 @@ const departmentDao = {
     });
     return res;
   },
+  async modifyDepartment(newDepartment: Department): Promise<Department> {
+    let res = await DepartmentDB.updateByQuery<Department>({
+      department_name: newDepartment.department_name,
+      leader_id: newDepartment.leader_id,
+      leader_name: newDepartment.leader_name,
+      members: newDepartment.members,
+      update_time: Date.now().toString(),
+    }, {
+      inFields: {
+        department_id: [newDepartment.department_id],
+      },
+    });
+    return res;
+  },
   async modifyDepartmentName(department_id: number, department_name: string): Promise<Department> {
     let res = await DepartmentDB.updateByQuery<Department>({
       department_name,

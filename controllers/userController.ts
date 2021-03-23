@@ -1,9 +1,12 @@
 import { Next, Context } from 'koa';
+import * as dayjs from 'dayjs';
 import RolesDao from '../dao/rolesDao';
 import userDao from '../dao/userDao';
 import userService from '../service/userService';
 import { MyResponse } from '../util/responseUtil';
 import { User } from '../domain/user';
+import departmentDao from '../dao/departmentDao';
+import wageDao from '../dao/wageDao';
 
 let userSortField = ['uid', 'create_time', 'update_time', 'sex'];
 
@@ -26,9 +29,20 @@ const userController = {
         ctx.body = MyResponse.error("用户名或者密码错误");
         return;
       }
-
       delete user.password;
+      let department = await departmentDao.getDepartmentById(user.department_id);
+      let wage = await wageDao.getWageByUid(user.uid, dayjs().year(), dayjs().month() + 1);
+      // let totalPaths = (await MenuDao.getAllMenu()).map((item) => item.menu_id);
+      user.department = department;
+      user.wage = wage;
       ctx.session.logged = true;
+      // if (user.roleIds.length) {
+      //   let paths = user.roleIds.map((role) => role.menus.map((menu) => menu.menu_id))[0];
+      //   ctx.session.authsPaths = paths;
+      //   ctx.session.totalPaths = totalPaths;
+      // } else {
+      //   ctx.session.authsPaths = [];
+      // }
       ctx.session.uid = user.uid;
       ctx.body = MyResponse.success(user, "执行成功");
     } catch (error) {
@@ -266,6 +280,10 @@ const userController = {
         ctx.body = MyResponse.error("用户不存在");
       } else {
         delete user.password;
+        let department = await departmentDao.getDepartmentById(user.department_id);
+        let wage = await wageDao.getWageByUid(Number(uid), dayjs().year(), dayjs().month() + 1);
+        user.department = department;
+        user.wage = wage;
         ctx.body = MyResponse.success(user);
       }
     } catch (error) {
@@ -287,11 +305,28 @@ const userController = {
         ctx.body = MyResponse.error("用户不存在");
       } else {
         delete user.password;
+        let department = await departmentDao.getDepartmentById(user.department_id);
+        let wage = await wageDao.getWageByUid(user.uid, dayjs().year(), dayjs().month() + 1);
+        user.department = department;
+        user.wage = wage;
         ctx.body = MyResponse.success(user);
       }
     } catch (error) {
       ctx.log.error(error);
       ctx.body = MyResponse.error("");
+    }
+  },
+  getAllUser: async (ctx: Context) => {
+    try {
+      let users = await userDao.getAllUser();
+      console.log(users);
+      users.forEach((item) => {
+        delete item.password;
+      });
+      ctx.body = MyResponse.success(users);
+    } catch (error) {
+      console.log(error);
+      ctx.body = MyResponse.error(error || "异常错误");
     }
   },
   getUserList: async (ctx: Context, next: Next) => {
