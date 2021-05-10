@@ -14,11 +14,11 @@ let userSortField = ['uid', 'create_time', 'update_time', 'sex'];
 const userController = {
   login: async (ctx: Context, next: Next) => {
     let { username, password } = ctx.request.body;
-    password = password.toString();
-    if (username == null || password == null) {
+    if (!username || !password) {
       ctx.body = MyResponse.paramWrong("参数缺失");
       return;
     }
+    password = password.toString();
     try {
       let user = await userService.getUserByNickname(username);
       if (user == null) {

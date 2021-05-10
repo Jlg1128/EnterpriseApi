@@ -126,7 +126,6 @@ const RolesController = {
       } else {
         members = [];
       }
-      console.log("finalMembers", finalMembers);
       let newDepartment: Department = {
         ...oldDepartment,
         department_name,
@@ -151,7 +150,6 @@ const RolesController = {
         return;
       }
       oldDepartment = await DepartmentDao.getDepartmentByName(department_name);
-      console.log("oldDepartment", oldDepartment);
       if (oldDepartment) {
         ctx.body = MyResponse.error("部门名称已存在");
         return;

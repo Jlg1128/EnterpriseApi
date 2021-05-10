@@ -35,7 +35,6 @@ const RolesController = {
           }
         });
       });
-      console.log("newMenus", newMenus);
       let update_time = Date.now().toString();
       await RolesDao.modifyRoles(role_id, role_name || role.role_name, JSON.stringify(newMenus), update_time);
       ctx.body = MyResponse.success("修改成功");
@@ -79,7 +78,6 @@ const RolesController = {
         return;
       }
       let res = await RolesDao.insertRole(newRole);
-      console.log("res", res);
       ctx.body = MyResponse.success("插入成功");
     } catch (error) {
       ctx.body = MyResponse.error(error || "数据库错误");

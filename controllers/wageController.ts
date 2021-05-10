@@ -20,9 +20,7 @@ const wageController = {
         ctx.body = MyResponse.error("该用户不存在");
         return;
       }
-      console.log("target_id", target_id);
       let oldWage = await wageDao.getWageByUid(target_id, year, month);
-      console.log(oldWage);
       if (oldWage) {
         ctx.body = MyResponse.error("抱歉，这个月已经对该用户发过工资了");
         return;
